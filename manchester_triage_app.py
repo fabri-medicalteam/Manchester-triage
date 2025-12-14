@@ -299,7 +299,9 @@ def generate_summary(findings, fc_name, gcs, priority, pain):
 
 # Session state
 if 'fc' not in st.session_state:
-    st.session_state.fc = 'headache'
+    st.session_state.fc = None
+if 'fc_selected' not in st.session_state:
+    st.session_state.fc_selected = False
 
 # ========== HEADER ==========
 st.markdown(f'''
@@ -430,75 +432,88 @@ st.markdown('''
 ''', unsafe_allow_html=True)
 
 flowchart_options = {k: v['n'] for k, v in F.items()}
-selected_fc = st.selectbox("Selecione o fluxograma", list(flowchart_options.keys()), 
-                           format_func=lambda x: flowchart_options[x], label_visibility="collapsed")
+flowchart_keys = list(flowchart_options.keys())
 
-if selected_fc != st.session_state.fc:
+# Índice inicial: None se nunca selecionou, senão o índice do fluxograma atual
+initial_index = None if not st.session_state.fc_selected else flowchart_keys.index(st.session_state.fc) if st.session_state.fc else 0
+
+selected_fc = st.selectbox(
+    "Selecione o fluxograma",
+    flowchart_keys,
+    index=initial_index,
+    format_func=lambda x: flowchart_options[x],
+    placeholder="Selecione a queixa principal...",
+    label_visibility="collapsed"
+)
+
+if selected_fc is not None and (not st.session_state.fc_selected or selected_fc != st.session_state.fc):
     st.session_state.fc = selected_fc
+    st.session_state.fc_selected = True
     st.rerun()
 
 # ========== LINHA 4: Discriminadores ==========
-st.markdown('<div style="height: 24px;"></div>', unsafe_allow_html=True)
-
-fc_data = F[st.session_state.fc]
-st.markdown(f'''
-<div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #E5E7EB;">
-    Discriminadores: {fc_data['n']}
-</div>
-<div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
-    <span style="font-weight: 500; color: #92400E;">Avalie de cima para baixo. O primeiro SIM determina a prioridade.</span>
-</div>
-''', unsafe_allow_html=True)
-
-# Agrupar por prioridade
-disc_by_pri = {}
-for d in fc_data['d']:
-    disc_by_pri.setdefault(d['p'], []).append(d)
-
 determined = None
 
-for pri in PO:
-    if pri not in disc_by_pri:
-        continue
-    
-    p = P[pri]
-    
+if st.session_state.fc_selected and st.session_state.fc:
+    st.markdown('<div style="height: 24px;"></div>', unsafe_allow_html=True)
+
+    fc_data = F[st.session_state.fc]
     st.markdown(f'''
-    <div style="background: {p['bg']}; border-left: 4px solid {p['c']}; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0 12px 0;">
-        <span style="font-weight: 600; color: {p['tx']}; font-size: 14px;">{p['l']}</span>
-        <span style="color: {p['tx']}; opacity: 0.7; margin-left: 8px; font-size: 13px;">Tempo alvo: {p['t']}</span>
+    <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #E5E7EB;">
+        Discriminadores: {fc_data['n']}
+    </div>
+    <div style="background: #FEF3C7; border-left: 4px solid #F59E0B; padding: 12px 16px; border-radius: 0 8px 8px 0; margin-bottom: 20px;">
+        <span style="font-weight: 500; color: #92400E;">Avalie de cima para baixo. O primeiro SIM determina a prioridade.</span>
     </div>
     ''', unsafe_allow_html=True)
-    
-    for disc in disc_by_pri[pri]:
-        key = f"d_{st.session_state.fc}_{disc['id']}"
-        disabled = determined is not None
-        
-        col_check, col_text = st.columns([0.05, 0.95])
-        with col_check:
-            if disabled:
-                st.markdown('<div style="color: #9CA3AF;">—</div>', unsafe_allow_html=True)
-            else:
-                checked = st.checkbox("", key=key, label_visibility="collapsed")
-                if checked:
-                    determined = pri
-                    findings.append({'p': pri, 'q': disc['q']})
-        with col_text:
-            opacity = "0.4" if disabled else "1"
-            st.markdown(f'''
-            <div style="opacity: {opacity}; padding: 4px 0;">
-                <span style="font-weight: 500; color: #1F2937;">{disc['q']}</span>
-                <span style="color: #6B7280; font-size: 13px; margin-left: 8px;">{disc['desc']}</span>
-            </div>
-            ''', unsafe_allow_html=True)
 
-# Botão limpar
-st.markdown('<div style="height: 16px;"></div>', unsafe_allow_html=True)
-if st.button("Limpar todas as respostas"):
-    for k in list(st.session_state.keys()):
-        if k.startswith('d_'):
-            del st.session_state[k]
-    st.rerun()
+    # Agrupar por prioridade
+    disc_by_pri = {}
+    for d in fc_data['d']:
+        disc_by_pri.setdefault(d['p'], []).append(d)
+
+    for pri in PO:
+        if pri not in disc_by_pri:
+            continue
+
+        p = P[pri]
+
+        st.markdown(f'''
+        <div style="background: {p['bg']}; border-left: 4px solid {p['c']}; padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 16px 0 12px 0;">
+            <span style="font-weight: 600; color: {p['tx']}; font-size: 14px;">{p['l']}</span>
+            <span style="color: {p['tx']}; opacity: 0.7; margin-left: 8px; font-size: 13px;">Tempo alvo: {p['t']}</span>
+        </div>
+        ''', unsafe_allow_html=True)
+
+        for disc in disc_by_pri[pri]:
+            key = f"d_{st.session_state.fc}_{disc['id']}"
+            disabled = determined is not None
+
+            col_check, col_text = st.columns([0.05, 0.95])
+            with col_check:
+                if disabled:
+                    st.markdown('<div style="color: #9CA3AF;">—</div>', unsafe_allow_html=True)
+                else:
+                    checked = st.checkbox("", key=key, label_visibility="collapsed")
+                    if checked:
+                        determined = pri
+                        findings.append({'p': pri, 'q': disc['q']})
+            with col_text:
+                opacity = "0.4" if disabled else "1"
+                st.markdown(f'''
+                <div style="opacity: {opacity}; padding: 4px 0;">
+                    <span style="font-weight: 500; color: #1F2937;">{disc['q']}</span>
+                    <span style="color: #6B7280; font-size: 13px; margin-left: 8px;">{disc['desc']}</span>
+                </div>
+                ''', unsafe_allow_html=True)
+
+    # Botão limpar
+    st.markdown('<div style="height: 16px;"></div>', unsafe_allow_html=True)
+    if st.button("Limpar todas as respostas"):
+        for k in list(st.session_state.keys()):
+            if k.startswith('d_'):
+                del st.session_state[k]
+        st.rerun()
 
 # ========== RESULTADO (calculado) ==========
 final_priority = get_priority(findings)
@@ -592,7 +607,8 @@ st.markdown('''
 </div>
 ''', unsafe_allow_html=True)
 
-summary_text = generate_summary(findings, fc_data['n'], gcs_val, final_priority, pain)
+fc_name = F[st.session_state.fc]['n'] if st.session_state.fc_selected and st.session_state.fc else "Não selecionado"
+summary_text = generate_summary(findings, fc_name, gcs_val, final_priority, pain)
 st.text_area("Resumo", value=summary_text, height=180, label_visibility="collapsed")
 
 # ========== FOOTER ==========
