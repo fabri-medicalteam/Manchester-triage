@@ -21,7 +21,7 @@ st.markdown("""
 }
 
 .block-container {
-    padding-top: 2rem !important;
+    padding-top: 1rem !important;
     padding-bottom: 2rem !important;
     max-width: 1200px !important;
 }
@@ -40,6 +40,62 @@ h1, h2, h3, h4, h5, h6 {
 .stTextArea textarea {
     font-family: 'IBM Plex Sans', sans-serif !important;
     font-size: 14px !important;
+}
+
+/* Force light mode */
+html, body, [data-testid="stAppViewContainer"], [data-testid="stApp"] {
+    background-color: #FFFFFF !important;
+    color: #111827 !important;
+}
+[data-testid="stSidebar"], [data-testid="stHeader"] {
+    background-color: #FFFFFF !important;
+}
+.stTextInput>div>div>input, .stNumberInput>div>div>input, .stTextArea>div>div>textarea {
+    background-color: #FFFFFF !important;
+    color: #111827 !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .block-container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+    [data-testid="column"] {
+        width: 100% !important;
+        flex: 100% !important;
+        min-width: 100% !important;
+    }
+    [data-testid="stHorizontalBlock"] {
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+    .stCheckbox {
+        padding: 8px 0 !important;
+    }
+    .stCheckbox label {
+        font-size: 14px !important;
+    }
+    .stNumberInput, .stSelectbox {
+        margin-bottom: 0.5rem !important;
+    }
+}
+
+/* Touch-friendly elements */
+.stCheckbox > label {
+    padding: 10px 0 !important;
+    cursor: pointer !important;
+}
+.stCheckbox > label > div[data-testid="stCheckbox"] {
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+.stRadio > div {
+    gap: 8px !important;
+}
+.stRadio label {
+    padding: 8px 12px !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -247,15 +303,12 @@ if 'fc' not in st.session_state:
 
 # ========== HEADER ==========
 st.markdown(f'''
-<div style="background: #FFFFFF; padding: 24px 32px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 32px;">
-    <div style="display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center; gap: 24px;">
-            {LOGO_SVG}
-            <div style="width: 1px; height: 40px; background: #E5E7EB;"></div>
-            <div>
-                <div style="font-size: 22px; font-weight: 600; color: #111827; letter-spacing: -0.02em;">Sistema de Triagem de Manchester</div>
-                <div style="font-size: 14px; color: #6B7280; margin-top: 4px;">Ferramenta de apoio à decisão clínica</div>
-            </div>
+<div style="background: #FFFFFF; padding: 16px 20px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
+        {LOGO_SVG}
+        <div>
+            <div style="font-size: 18px; font-weight: 600; color: #111827; letter-spacing: -0.02em;">Sistema de Triagem de Manchester</div>
+            <div style="font-size: 13px; color: #6B7280; margin-top: 2px;">Ferramenta de apoio à decisão clínica</div>
         </div>
     </div>
 </div>
@@ -459,23 +512,23 @@ findings_tags = "".join([
 # Resultado no TOPO
 with result_placeholder.container():
     st.markdown(f'''
-    <div style="background: {p_result['bg']}; border: 2px solid {p_result['c']}; border-radius: 16px; padding: 24px 32px; margin-bottom: 24px;">
-        <div style="display: flex; align-items: center; justify-content: space-between;">
+    <div style="background: {p_result['bg']}; border: 2px solid {p_result['c']}; border-radius: 16px; padding: 16px 20px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
             <div>
-                <div style="font-size: 14px; color: {p_result['tx']}; opacity: 0.8; margin-bottom: 4px;">Classificação de Risco</div>
-                <div style="font-size: 32px; font-weight: 700; color: {p_result['tx']}; letter-spacing: -0.02em;">{p_result['l']}</div>
-                <div style="margin-top: 12px;">{findings_tags if findings_tags else '<span style="color: #6B7280; font-size: 13px;">Nenhum achado registrado</span>'}</div>
+                <div style="font-size: 12px; color: {p_result['tx']}; opacity: 0.8;">Classificação de Risco</div>
+                <div style="font-size: 24px; font-weight: 700; color: {p_result['tx']}; letter-spacing: -0.02em;">{p_result['l']}</div>
+                <div style="margin-top: 8px; font-size: 11px;">{findings_tags if findings_tags else '<span style="color: #6B7280;">Nenhum achado</span>'}</div>
             </div>
             <div style="text-align: right;">
-                <div style="font-size: 14px; color: {p_result['tx']}; opacity: 0.8;">Tempo Alvo</div>
-                <div style="font-size: 36px; font-weight: 700; color: {p_result['tx']};">{p_result['t']}</div>
+                <div style="font-size: 12px; color: {p_result['tx']}; opacity: 0.8;">Tempo Alvo</div>
+                <div style="font-size: 28px; font-weight: 700; color: {p_result['tx']};">{p_result['t']}</div>
             </div>
         </div>
     </div>
     ''', unsafe_allow_html=True)
 
 # ========== LEGENDA DE TEMPOS (Full Width) ==========
-st.markdown('<div style="height: 32px;"></div>', unsafe_allow_html=True)
+st.markdown('<div style="height: 24px;"></div>', unsafe_allow_html=True)
 st.markdown('''
 <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #E5E7EB;">
     Categorias de Prioridade
@@ -483,32 +536,32 @@ st.markdown('''
 ''', unsafe_allow_html=True)
 
 st.markdown(f'''
-<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;">
-    <div style="background: {P['immediate']['bg']}; border-left: 4px solid {P['immediate']['c']}; padding: 16px; border-radius: 0 8px 8px 0;">
-        <div style="font-size: 14px; font-weight: 600; color: {P['immediate']['tx']};">{P['immediate']['l']}</div>
-        <div style="font-size: 24px; font-weight: 700; color: {P['immediate']['tx']}; margin-top: 4px;">{P['immediate']['t']}</div>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;">
+    <div style="background: {P['immediate']['bg']}; border-left: 4px solid {P['immediate']['c']}; padding: 12px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 12px; font-weight: 600; color: {P['immediate']['tx']};">{P['immediate']['l']}</div>
+        <div style="font-size: 18px; font-weight: 700; color: {P['immediate']['tx']}; margin-top: 2px;">{P['immediate']['t']}</div>
     </div>
-    <div style="background: {P['very_urgent']['bg']}; border-left: 4px solid {P['very_urgent']['c']}; padding: 16px; border-radius: 0 8px 8px 0;">
-        <div style="font-size: 14px; font-weight: 600; color: {P['very_urgent']['tx']};">{P['very_urgent']['l']}</div>
-        <div style="font-size: 24px; font-weight: 700; color: {P['very_urgent']['tx']}; margin-top: 4px;">{P['very_urgent']['t']}</div>
+    <div style="background: {P['very_urgent']['bg']}; border-left: 4px solid {P['very_urgent']['c']}; padding: 12px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 12px; font-weight: 600; color: {P['very_urgent']['tx']};">{P['very_urgent']['l']}</div>
+        <div style="font-size: 18px; font-weight: 700; color: {P['very_urgent']['tx']}; margin-top: 2px;">{P['very_urgent']['t']}</div>
     </div>
-    <div style="background: {P['urgent']['bg']}; border-left: 4px solid {P['urgent']['c']}; padding: 16px; border-radius: 0 8px 8px 0;">
-        <div style="font-size: 14px; font-weight: 600; color: {P['urgent']['tx']};">{P['urgent']['l']}</div>
-        <div style="font-size: 24px; font-weight: 700; color: {P['urgent']['tx']}; margin-top: 4px;">{P['urgent']['t']}</div>
+    <div style="background: {P['urgent']['bg']}; border-left: 4px solid {P['urgent']['c']}; padding: 12px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 12px; font-weight: 600; color: {P['urgent']['tx']};">{P['urgent']['l']}</div>
+        <div style="font-size: 18px; font-weight: 700; color: {P['urgent']['tx']}; margin-top: 2px;">{P['urgent']['t']}</div>
     </div>
-    <div style="background: {P['standard']['bg']}; border-left: 4px solid {P['standard']['c']}; padding: 16px; border-radius: 0 8px 8px 0;">
-        <div style="font-size: 14px; font-weight: 600; color: {P['standard']['tx']};">{P['standard']['l']}</div>
-        <div style="font-size: 24px; font-weight: 700; color: {P['standard']['tx']}; margin-top: 4px;">{P['standard']['t']}</div>
+    <div style="background: {P['standard']['bg']}; border-left: 4px solid {P['standard']['c']}; padding: 12px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 12px; font-weight: 600; color: {P['standard']['tx']};">{P['standard']['l']}</div>
+        <div style="font-size: 18px; font-weight: 700; color: {P['standard']['tx']}; margin-top: 2px;">{P['standard']['t']}</div>
     </div>
-    <div style="background: {P['non_urgent']['bg']}; border-left: 4px solid {P['non_urgent']['c']}; padding: 16px; border-radius: 0 8px 8px 0;">
-        <div style="font-size: 14px; font-weight: 600; color: {P['non_urgent']['tx']};">{P['non_urgent']['l']}</div>
-        <div style="font-size: 24px; font-weight: 700; color: {P['non_urgent']['tx']}; margin-top: 4px;">{P['non_urgent']['t']}</div>
+    <div style="background: {P['non_urgent']['bg']}; border-left: 4px solid {P['non_urgent']['c']}; padding: 12px; border-radius: 0 8px 8px 0;">
+        <div style="font-size: 12px; font-weight: 600; color: {P['non_urgent']['tx']};">{P['non_urgent']['l']}</div>
+        <div style="font-size: 18px; font-weight: 700; color: {P['non_urgent']['tx']}; margin-top: 2px;">{P['non_urgent']['t']}</div>
     </div>
 </div>
 ''', unsafe_allow_html=True)
 
 # ========== RESULTADO FINAL + RESUMO ==========
-st.markdown('<div style="height: 32px;"></div>', unsafe_allow_html=True)
+st.markdown('<div style="height: 24px;"></div>', unsafe_allow_html=True)
 st.markdown('''
 <div style="font-size: 16px; font-weight: 600; color: #374151; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 2px solid #E5E7EB;">
     Resultado da Classificação
@@ -517,16 +570,16 @@ st.markdown('''
 
 # Resultado duplicado no final
 st.markdown(f'''
-<div style="background: {p_result['bg']}; border: 2px solid {p_result['c']}; border-radius: 16px; padding: 24px 32px; margin-bottom: 24px;">
-    <div style="display: flex; align-items: center; justify-content: space-between;">
+<div style="background: {p_result['bg']}; border: 2px solid {p_result['c']}; border-radius: 16px; padding: 16px 20px; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
         <div>
-            <div style="font-size: 14px; color: {p_result['tx']}; opacity: 0.8; margin-bottom: 4px;">Classificação de Risco</div>
-            <div style="font-size: 32px; font-weight: 700; color: {p_result['tx']}; letter-spacing: -0.02em;">{p_result['l']}</div>
-            <div style="margin-top: 12px;">{findings_tags if findings_tags else '<span style="color: #6B7280; font-size: 13px;">Nenhum achado registrado</span>'}</div>
+            <div style="font-size: 12px; color: {p_result['tx']}; opacity: 0.8;">Classificação de Risco</div>
+            <div style="font-size: 24px; font-weight: 700; color: {p_result['tx']}; letter-spacing: -0.02em;">{p_result['l']}</div>
+            <div style="margin-top: 8px; font-size: 11px;">{findings_tags if findings_tags else '<span style="color: #6B7280;">Nenhum achado</span>'}</div>
         </div>
         <div style="text-align: right;">
-            <div style="font-size: 14px; color: {p_result['tx']}; opacity: 0.8;">Tempo Alvo</div>
-            <div style="font-size: 36px; font-weight: 700; color: {p_result['tx']};">{p_result['t']}</div>
+            <div style="font-size: 12px; color: {p_result['tx']}; opacity: 0.8;">Tempo Alvo</div>
+            <div style="font-size: 28px; font-weight: 700; color: {p_result['tx']};">{p_result['t']}</div>
         </div>
     </div>
 </div>
@@ -544,12 +597,12 @@ st.text_area("Resumo", value=summary_text, height=180, label_visibility="collaps
 
 # ========== FOOTER ==========
 st.markdown('''
-<div style="margin-top: 40px; padding: 20px; text-align: center; border-top: 1px solid #E5E7EB;">
-    <div style="font-size: 13px; color: #6B7280;">
-        <strong style="color: #059669;">telepatia.ai</strong> · Sistema de Escalas Médicas · Protocolo de Manchester
+<div style="margin-top: 32px; padding: 16px; text-align: center; border-top: 1px solid #E5E7EB;">
+    <div style="font-size: 12px; color: #6B7280;">
+        <strong style="color: #059669;">telepatia.ai</strong> · Protocolo de Manchester
     </div>
-    <div style="font-size: 12px; color: #9CA3AF; margin-top: 4px;">
-        Ferramenta de apoio à decisão. Não substitui o julgamento clínico.
+    <div style="font-size: 11px; color: #9CA3AF; margin-top: 4px;">
+        Ferramenta de apoio. Não substitui o julgamento clínico.
     </div>
 </div>
 ''', unsafe_allow_html=True)
