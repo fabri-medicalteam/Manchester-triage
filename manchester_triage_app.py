@@ -527,7 +527,7 @@ findings_tags = "".join([
 # Resultado no TOPO
 with result_placeholder.container():
     st.markdown(f'''
-    <div style="background: {p_result['bg']}; border: 2px solid {p_result['c']}; border-radius: 16px; padding: 16px 20px; margin-bottom: 20px;">
+    <div style="background: {p_result['bg']}; border-radius: 16px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
             <div>
                 <div style="font-size: 12px; color: {p_result['tx']}; opacity: 0.8;">Classificação de Risco</div>
@@ -585,7 +585,7 @@ st.markdown('''
 
 # Resultado duplicado no final
 st.markdown(f'''
-<div style="background: {p_result['bg']}; border: 2px solid {p_result['c']}; border-radius: 16px; padding: 16px 20px; margin-bottom: 20px;">
+<div style="background: {p_result['bg']}; border-radius: 16px; padding: 16px 20px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
         <div>
             <div style="font-size: 12px; color: {p_result['tx']}; opacity: 0.8;">Classificação de Risco</div>
